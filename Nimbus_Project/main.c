@@ -60,7 +60,7 @@ void addProduct() {
 }
 
 int findProductIndex(int code) {
-    for (int i = 0; i< numproducts; i++){
+    for (int i = 0; i< num_products; i++){
         if(products[i]->code == code){
             return i;
         }
@@ -68,14 +68,14 @@ int findProductIndex(int code) {
     return -1;
 }
 
-void removeProdect(){
+void removeProduct(){
     int code;
-    printf("Enter code to remove; ");
+    printf("Enter code to remove: ");
     scanf("%d", &code);
 
     int idx = findProductIndex(code);
     if(idx == -1) {
-        printf("Not Found.\n");
+        printf("Not found.\n");
         return;
     }
 
@@ -105,3 +105,36 @@ void displayAllProducts() {
     }
 }
 
+//save inventory
+
+void saveInventory(){
+    FILE *fp = fopen("inventory.dat", "wb");
+    fwrite(&num_products, sizeof(int), 1, fp);
+
+    for (int i = 0; i < num_products; i++)
+        fwrite(products[i], sizeof(Product), 1, fp);
+
+    fclose(fp);
+}
+
+//load inventory
+
+void loadInventory(){
+    FILE *fp = fopen("inventory.dat", "rb");
+    if (!fp) return;
+
+    for(int i =0; i < num_products;i++){
+        free(products[i]);
+    }
+    
+    fread(&num_products, sizeof(int), 1, fp);
+    while (num_products > max_products){
+    resizeProducts();
+    }
+    for(int i = 0; i< num_products;i++){
+        products[i] = malloc(sizeof(Product));
+        fread(products[i],sizeof(Product), 1 ,fp);
+    }
+    fclose(fp);
+    printf("Inventory loaded succesfully.\n");
+}
